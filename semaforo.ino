@@ -1,4 +1,5 @@
 #include <HCSR04.h>
+#include "LowPower.h"
 
 byte triggerPin = 11;
 byte echoPin = 12;
@@ -36,9 +37,11 @@ void loop () {
     } else {
       digitalWrite(ledPin, LOW);
     }
+    delay(333);
   } else {
     digitalWrite(ledPin, LOW);
+    //LowPower.idle(SLEEP_1S, ADC_OFF, TIMER2_OFF, TIMER1_OFF, TIMER0_OFF, 
+    //            SPI_OFF, USART0_OFF, TWI_OFF);
+    LowPower.powerDown(SLEEP_2S, ADC_OFF, BOD_OFF);
   }
-  
-  delay(250);
 }
