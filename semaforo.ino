@@ -3,24 +3,25 @@
 byte triggerPin = 11;
 byte echoPin = 12;
 const int ledPin =  5;
-int sensorPin = A0;
+int sensorPin = 10;
 int sensorValue = 0;
 
 void setup () {
   Serial.begin(9600);
   HCSR04.begin(triggerPin, echoPin);
   pinMode(ledPin, OUTPUT);
+  pinMode(sensorPin, INPUT);
 }
 
 void loop () {
-  sensorValue = analogRead(sensorPin);
+  sensorValue = digitalRead(sensorPin);
 
   Serial.print("2: ");
   Serial.print(sensorValue);
   
   Serial.println("---");
 
-  if (sensorValue > 800) {
+  if (sensorValue) {
     /* The door is closed */
 
     double* distances = HCSR04.measureDistanceCm();
