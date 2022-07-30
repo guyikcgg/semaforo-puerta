@@ -32,6 +32,8 @@ void loop () {
     if ((distances[0] > 4.0) && (distances[0] < 15.0)) {
       /* The closet's door is open */
       digitalWrite(ledPin, HIGH);
+    } else {
+      digitalWrite(ledPin, LOW);
     }
   } else {
     digitalWrite(ledPin, LOW);
