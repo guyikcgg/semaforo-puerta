@@ -1,35 +1,56 @@
 #include <HCSR04.h>
 #include "LowPower.h"
 
-byte triggerPin = 11;
-byte echoPin = 12;
-const int ledPin =  5;
-int sensorPin = 10;
-int sensorValue = 0;
+#define DEBUG false
+
+const byte sr04TriggerPin = 11;
+const byte sr04EchoPin = 12;
+const byte sr04GndPin = 8;
+const byte ledPin =  5;
+const byte cny70Pin = 10;
+const byte cny70GndPin = 9;
 
 void setup () {
+#if DEBUG
   Serial.begin(9600);
-  HCSR04.begin(triggerPin, echoPin);
+#endif
+  HCSR04.begin(sr04TriggerPin, sr04EchoPin);
   pinMode(ledPin, OUTPUT);
-  pinMode(sensorPin, INPUT);
+  pinMode(cny70Pin, INPUT);
+  pinMode(cny70GndPin, INPUT);
+  pinMode(sr04GndPin, INPUT);
 }
 
 void loop () {
-  sensorValue = digitalRead(sensorPin);
-
-  Serial.print("2: ");
-  Serial.print(sensorValue);
+  bool cny70Value = LOW;
   
-  Serial.println("---");
+  // Turn on the cny70 and read the value
+  pinMode(cny70GndPin, OUTPUT);
+  digitalWrite(cny70GndPin, LOW);
+  delay(1);
+  cny70Value = digitalRead(cny70Pin);
+  pinMode(cny70GndPin, INPUT);
 
-  if (sensorValue) {
+#if DEBUG
+  Serial.print("cny70: ");
+  Serial.print(cny70Value);
+#endif
+
+  if (cny70Value) {
     /* The door is closed */
+    double* distances = NULL;
 
-    double* distances = HCSR04.measureDistanceCm();
-      
-    Serial.print("1: ");
+    pinMode(sr04GndPin, OUTPUT);
+    digitalWrite(sr04GndPin, LOW);
+    delay(1);
+    distances = HCSR04.measureDistanceCm();
+    pinMode(sr04GndPin, INPUT);
+
+#if DEBUG
+    Serial.print("sr04: ");
     Serial.print(distances[0]);
     Serial.println(" cm");
+#endif
     
     if ((distances[0] > 4.0) && (distances[0] < 15.0)) {
       /* The closet's door is open */
@@ -37,11 +58,10 @@ void loop () {
     } else {
       digitalWrite(ledPin, LOW);
     }
-    delay(333);
   } else {
     digitalWrite(ledPin, LOW);
     //LowPower.idle(SLEEP_1S, ADC_OFF, TIMER2_OFF, TIMER1_OFF, TIMER0_OFF, 
     //            SPI_OFF, USART0_OFF, TWI_OFF);
-    LowPower.powerDown(SLEEP_2S, ADC_OFF, BOD_OFF);
   }
+  LowPower.powerDown(SLEEP_2S, ADC_OFF, BOD_OFF);
 }
